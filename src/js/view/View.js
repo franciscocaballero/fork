@@ -2,13 +2,15 @@ import icons from 'url:../../img/icons.svg';
 
 export default class View {
   _data;
-  render(data) {
+  render(data, render = true) {
     if (!data || (Array.isArray(data) && data.length === 0))
       return this.renderError();
     //1: Getting Data
     this._data = data;
     //2: Generating Markup
     const markUp = this._generateMarkUp();
+
+    if (!render) return markUp;
     //3: Clearing parent EL
     this._clear();
     //4: inserting HTML to DOM:
@@ -16,27 +18,33 @@ export default class View {
   }
 
   update(data) {
-    if (!data || (Array.isArray(data) && data.length === 0)) {
-      return this.renderError();
-    }
     this._data = data;
-    const newMarkup = this._generateMarkUp;
+    const newMarkup = this._generateMarkUp();
 
     const newDOM = document.createRange().createContextualFragment(newMarkup);
     const newElements = Array.from(newDOM.querySelectorAll('*'));
-    // console.log(newElArray.from(ements);
     const curElements = Array.from(this._parentElement.querySelectorAll('*'));
-
-    console.log(curElements, newElements);
+    // console.log(newElements);
 
     newElements.forEach((newEl, i) => {
       const curEl = curElements[i];
       console.log(curEl, newEl.isEqualNode(curEl));
-    });
 
-    if (!newEl.isEqualNode(curEl)) {
-      curEl.textContent = newEl.textContent;
-    }
+      //Updates changed TEXT
+      if (
+        !newEl.isEqualNode(curEl) &&
+        newEl.firstChild?.nodeValue.trim() !== ''
+      ) {
+        curEl.textContent = newEl.textContent;
+      }
+      //   // Updates changed ATTRIBUTES:
+      if (!newEl.isEqualNode(curEl)) {
+        console.log(newEl.attributes);
+        Array.from(newEl.attributes).forEach(attr =>
+          curEl.setAttribute(attr.name, attr.value)
+        );
+      }
+    });
   }
   _clear() {
     //Clearing DOM Before insterting HTML
